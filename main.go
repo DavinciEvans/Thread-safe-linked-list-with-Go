@@ -9,10 +9,10 @@ import (
 )
 
 var (
-	wg             sync.WaitGroup
-	linkList       LinkList
-	innerGroupList []sync.WaitGroup
-	//m sync.Mutex
+	wg       sync.WaitGroup
+	linkList LinkList
+	//innerGroupList []sync.WaitGroup
+	m sync.Mutex
 )
 
 func main() {
@@ -49,20 +49,20 @@ func main() {
 	linkList.Display(false)
 	fmt.Println("----- Start Sort -----")
 
-	Monitor(1, &linkList, 2, 33)
+	Monitor(1, &linkList, 4, 33)
 }
 
 /*
 Monitor: 控制函数
 */
 func Monitor(id int, linkList *LinkList, step int, pivot int) {
-	fmt.Println("id: ", id, "is working.")
-	var innerGroup sync.WaitGroup
-	innerGroupList = append(innerGroupList, innerGroup)
-	if linkList.Length <= 1 {
-		innerGroup.Done()
-		return
-	}
+	//fmt.Println("id: ", id, "is working.")
+	//var innerGroup sync.WaitGroup
+	//innerGroupList = append(innerGroupList, innerGroup)
+	//if linkList.Length <= 1 {
+	//	innerGroup.Done()
+	//	return
+	//}
 	wg.Add(step)
 	for i := 0; i < step; i++ {
 		var rangeNode [][]*Node
@@ -75,32 +75,32 @@ func Monitor(id int, linkList *LinkList, step int, pivot int) {
 	linkList.Display(false)
 
 	// 寻找当前 pivot 位置
-	item := linkList.Head
-	s := 0
-	for item.Data != pivot {
-		item = item.Suc
-		s++
-	}
-	// 查看有几个 pivot 相同的值
-	e := 1
-	for item.Suc.Data == item.Data {
-		item = item.Suc
-		e++
-	}
-	// 切割原链表为 3 段
-	aCopy, _ := linkList.Clone(0, s)
-	bCopy, _ := linkList.Clone(s, e)
-	cCopy, _ := linkList.Clone(e, linkList.Length)
-	aCopy.Display(false)
-	cCopy.Display(false)
-
-	innerGroup.Add(3)
-	go Monitor(id+1, &aCopy, step, aCopy.Head.Data)
-	go Monitor(id+3, &cCopy, step, cCopy.Head.Data)
-	innerGroup.Done()
-	res := ConnectLinkList(aCopy, bCopy)
-	res = ConnectLinkList(res, cCopy)
-	res.Display(false)
+	//item := linkList.Head
+	//s := 0
+	//for item.Data != pivot {
+	//	item = item.Suc
+	//	s++
+	//}
+	//// 查看有几个 pivot 相同的值
+	//e := 1
+	//for item.Suc.Data == item.Data {
+	//	item = item.Suc
+	//	e++
+	//}
+	//// 切割原链表为 3 段
+	//aCopy, _ := linkList.Clone(0, s)
+	//bCopy, _ := linkList.Clone(s, e)
+	//cCopy, _ := linkList.Clone(e, linkList.Length)
+	//aCopy.Display(false)
+	//cCopy.Display(false)
+	//
+	//innerGroup.Add(3)
+	//go Monitor(id+1, &aCopy, step, aCopy.Head.Data)
+	//go Monitor(id+3, &cCopy, step, cCopy.Head.Data)
+	//innerGroup.Done()
+	//res := ConnectLinkList(aCopy, bCopy)
+	//res = ConnectLinkList(res, cCopy)
+	//res.Display(false)
 }
 
 /*
@@ -123,10 +123,10 @@ func (l *LinkList) MultiQuickSort(id int, pivot int, start *Node, end *Node) {
 		}
 		item = temp
 
-		//m.Lock()
-		//fmt.Println("ID: ", id)
-		//l.Display(false)
-		//m.Unlock()
+		m.Lock()
+		fmt.Println("ID: ", id)
+		l.Display(false)
+		m.Unlock()
 	}
 
 	// 对于临界节点，还要再判断一次
