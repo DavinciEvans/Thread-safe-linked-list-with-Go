@@ -15,6 +15,7 @@ import (
 // 生成随机数列
 func TestGenerate(t *testing.T) {
 	count := math.Pow(2, 5)
+	// 生成随机数序列
 	var numbersList string
 	rand.Seed(time.Now().Unix())
 	fmt.Println("Generate a number list now...")
@@ -22,7 +23,25 @@ func TestGenerate(t *testing.T) {
 		numbersList = numbersList + strconv.Itoa(rand.Intn(int(count*2))) + "\n"
 	}
 
-	err := ioutil.WriteFile("./numbers_list.txt", []byte(numbersList), 0644)
+	err := ioutil.WriteFile("./numbers_list1.txt", []byte(numbersList), 0644)
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+
+	// 生成服从正态分布的随机数序列
+	var normalNumbersList string
+	fmt.Println("Generate a normal number list now...")
+	s := 5.0 // 标准差
+	q := 50.0 // 期望
+	for i := .0; i < count; i ++ {
+		num := rand.NormFloat64() * s + q
+		if num < 0 {
+			num = 0
+		}
+		normalNumbersList = normalNumbersList + strconv.Itoa(int(num)) + "\n"
+	}
+
+	err = ioutil.WriteFile("./numbers_list2.txt", []byte(normalNumbersList), 0644)
 	if err != nil {
 		t.Fatal(err.Error())
 	}
@@ -33,7 +52,7 @@ func TestLinkList(t *testing.T) {
 	var linkList LinkList
 	linkList.InitList()
 	// 从文件读入数组
-	f, _ := os.Open("numbers_list.txt")
+	f, _ := os.Open("numbers_list1.txt")
 	defer f.Close()
 	r := bufio.NewReader(f)
 
@@ -79,10 +98,19 @@ func TestLinkList(t *testing.T) {
 	fmt.Println("----- Find -----")
 	firstRes := linkList.Find(&testNode1)
 	secondRes := linkList.Find(&testNode2)
-	thirdRes := linkList.Find(&testNode3)
+	thirdRes := linkList.Find(&Node{Data: 1022})
 	fmt.Println("First: ", firstRes)
 	fmt.Println("Second: ", secondRes)
 	fmt.Println("Third: ", thirdRes)
+
+	// 测试 Search
+	fmt.Println("----- Search -----")
+	pos1 := linkList.Search(100)
+	pos2 := linkList.Search(101)
+	pos3 := linkList.Search(1000)
+	fmt.Println("First: ", pos1)
+	fmt.Println("Second: ", pos2)
+	fmt.Println("Third: ", pos3)
 
 	// 测试 Erase
 	fmt.Println("----- Erase -----")

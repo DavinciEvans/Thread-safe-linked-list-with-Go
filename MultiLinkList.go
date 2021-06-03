@@ -66,7 +66,7 @@ func (l *LinkList) Insert(position int, node *Node) error {
 	// 节点不存在或插入点超出范围
 	if node == nil {
 		return errors.New("the parameter node can not be nil")
-	} else if position > (*l).Length || (*l).Length == 0 {
+	} else if position > (*l).Length || position < 0 {
 		return errors.New("the parameter position is too big")
 	}
 
@@ -75,15 +75,18 @@ func (l *LinkList) Insert(position int, node *Node) error {
 	// 插入数据
 	rw.Lock()
 	defer rw.Unlock()
-	if position == 0 { // 在第一个位置插入
-		(*l).Head.Pre = node
-		node.Suc = (*l).Head
+	if (*l).Length == 0 { // 如果此时链表为0
 		(*l).Head = node
+		(*l).Tail = node
 	} else if position == (*l).Length { // 在最末尾插入
 		(*l).Tail.Suc = node
 		node.Pre = (*l).Tail
 		(*l).Tail = node
-	} else { // 中间插入
+	} else if position == 0 { // 在第一个位置插入
+		(*l).Head.Pre = node
+		node.Suc = (*l).Head
+		(*l).Head = node
+	}  else { // 中间插入
 		item := (*l).Head
 		for i := 0; i < position-1; i++ {
 			item = item.Suc
@@ -113,10 +116,14 @@ func (l *LinkList) Erase(position int) error {
 	defer rw.Unlock()
 	if position == 0 { // 删除头部
 		(*l).Head = (*l).Head.Suc
-		(*l).Head.Pre = nil
+		if (*l).Head != nil {
+			(*l).Head.Pre = nil
+		}
 	} else if position == (*l).Length-1 { // 删除末尾
 		(*l).Tail = (*l).Tail.Pre
-		(*l).Tail.Suc = nil
+		if (*l).Tail != nil {
+			(*l).Tail.Suc = nil
+		}
 	} else {
 		node := (*l).Head
 		for i := 0; i < position; i++ {
@@ -134,7 +141,7 @@ func (l *LinkList) Erase(position int) error {
 
 /*
 Find: 查找
-data: 所需要查找的数据
+data: 所需要查找的节点地址
 返回的节点地址和返回查找到的位置，如果未找到，返回 -1
 */
 func (l *LinkList) Find(data *Node) int {
@@ -170,6 +177,25 @@ func (l *LinkList) Get(position int) (*Node, error) {
 		node = node.Suc
 	}
 	return node, nil
+}
+
+/*
+Search: 找到数据匹配的节点
+data: 所要找的数据
+返回节点地址，未找到返回 -1
+ */
+func (l *LinkList) Search(data int) *Node {
+	rw.RLock()
+	defer rw.RUnlock()
+
+	node := (*l).Head
+	for i := 0; i < (*l).Length; i++ {
+		if node.Data == data {
+			return node
+		}
+		node = node.Suc
+	}
+	return nil
 }
 
 /*
